@@ -10,13 +10,12 @@ class Accessor(str):
     To support list-of-dicts from ``QuerySet.values()``, if the context is a dictionary,
     and the accessor is a key in the dictionary, it is returned right away.
     
-    Keys that match the pattern ``--\w+--`` (dunder patterns) are automatically converted
+    Keys that match the pattern ``--\\w+--`` (dunder patterns) are automatically converted
     to ``__`` format before lookup. This allows for "Dunder" attributes that conflict with 
     the dunder seperater can be represented as double dash "--"
     """
 
     DEFAULT_SEPARATOR = "__"
-    DUNDER_PATTERN = re.compile(r"--\w+--")
 
     ALTERS_DATA_ERROR_FMT = "Refusing to call {method}() because `.alters_data = True`"
     LOOKUP_ERROR_FMT = (
@@ -115,7 +114,7 @@ class Accessor(str):
         the failed lookup. If call_callable is True and the resolved object is callable,
         it will be invoked with the provided callable_kwargs.
         
-        Keys that match the pattern ``--\w+--`` (dunder patterns) are automatically converted
+        Keys that match the pattern ``--`` (dunder patterns) are automatically converted
         to ``__`` format before lookup. This allows for compatibility with Django's 
         QuerySet.values() which returns keys with double underscore prefixes and suffixes, 
         as well as "dunder attributes" such as __class__
@@ -136,8 +135,8 @@ class Accessor(str):
         if obj == None:
             return obj
         callable_kwargs = callable_kwargs or {}
-        if bool(self.DUNDER_PATTERN.match(next_key)):
-            next_key = next_key.replace('--', self.sep)
+        if '--' in next_key:
+            next_key = next_key.replace('--', '__')
         # First Try Dictionary lookup
         try: 
             next_obj = obj[next_key]
