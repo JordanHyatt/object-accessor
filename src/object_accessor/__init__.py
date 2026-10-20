@@ -11,8 +11,8 @@ class Accessor(str):
     and the accessor is a key in the dictionary, it is returned right away.
     
     Keys that match the pattern ``--\w+--`` (dunder patterns) are automatically converted
-    to ``__`` format before lookup. This allows for compatibility with Django's 
-    QuerySet.values() which returns keys with double underscore prefixes and suffixes.
+    to ``__`` format before lookup. This allows for "Dunder" attributes that conflict with 
+    the dunder seperater can be represented as double dash "--"
     """
 
     DEFAULT_SEPARATOR = "__"
