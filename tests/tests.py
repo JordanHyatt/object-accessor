@@ -67,7 +67,7 @@ class TestAccessor(unittest.TestCase):
         accessor = Accessor("items__1")
         data = {"items": ["apple", "banana", "cherry"]}
         
-        result = accessor._get_next_object(data, "1")
+        result = accessor._get_next_object(data["items"], "1")
         self.assertEqual(result, "banana")
     
     def test_get_next_object_failure(self):
@@ -83,6 +83,92 @@ class TestAccessor(unittest.TestCase):
         with self.assertRaises(ValueError):
             accessor._get_next_object(data, "missing", quiet=False)
 
+    def test_resolve(self):
+        """Test the resolve method with various scenarios."""
+        
+        # Test basic dictionary access
+        accessor = Accessor("user__profile__name")
+        data = {"user": {"profile": {"name": "John"}}}
+        result = accessor.resolve(data)
+        self.assertEqual(result, "John")
+        
+        # Test attribute access
+        class Person:
+            def __init__(self):
+                self.name = "John"
+                
+        class Address:
+            def __init__(self):
+                self.person = Person()
+                
+        accessor = Accessor("person__name")
+        result = accessor.resolve(Address())
+        self.assertEqual(result, "John")
+        
+        # Test list index access
+        accessor = Accessor("items__1")
+        data = {"items": ["apple", "banana", "cherry"]}
+        result = accessor.resolve(data)
+        self.assertEqual(result, "banana")
+        
+        # Test mixed access patterns
+        class User:
+            def __init__(self):
+                self.profile = {"name": "Jane"}
+                
+        class Data:
+            def __init__(self):
+                self.users = [User(), User()]
+                
+        accessor = Accessor("users__0__profile__name")
+        result = accessor.resolve(Data())
+        self.assertEqual(result, "Jane")
+        
+        # Test with custom separator
+        accessor = Accessor("user.profile.name", sep=".")
+        data = {"user": {"profile": {"name": "Alice"}}}
+        result = accessor.resolve(data)
+        self.assertEqual(result, "Alice")
+        
+        # Test quiet mode (should return None on failure)
+        accessor = Accessor("nonexistent")
+        data = {"user": "John"}
+        result = accessor.resolve(data, quiet=True)
+        self.assertIsNone(result)
+        
+        # Test with default value
+        accessor = Accessor("nonexistent")
+        data = {"user": "John"}
+        result = accessor.resolve(data, quiet=True, default="Not found")
+        self.assertEqual(result, "Not found")
+        
+        # Test callable handling (ignore_callable=False by default)
+        def get_name():
+            return "Callable Name"
+            
+        accessor = Accessor("get_name")
+        data = {"get_name": get_name}
+        result = accessor.resolve(data)
+        self.assertEqual(result, "Callable Name")
+        
+        # Test with ignore_callable=True
+        accessor = Accessor("get_name", ignore_callable=True)
+        data = {"get_name": get_name}
+        result = accessor.resolve(data)
+        # Should return the function object itself since it's ignored
+        self.assertIs(result, get_name)
+        
+        # Test empty accessor
+        accessor = Accessor("")
+        data = {"user": "John"}
+        result = accessor.resolve(data)
+        self.assertEqual(result, data)
+        
+        # Test single key accessor
+        accessor = Accessor("user")
+        data = {"user": "John"}
+        result = accessor.resolve(data)
+        self.assertEqual(result, "John")
 
 if __name__ == '__main__':
     unittest.main()

@@ -15,8 +15,7 @@ class Accessor(str):
     QuerySet.values() which returns keys with double underscore prefixes and suffixes.
     """
 
-    LEGACY_SEPARATOR = "."
-    SEPARATOR = "__"
+    DEFAULT_SEPARATOR = "__"
     DUNDER_PATTERN = re.compile(r"--\w+--")
 
     ALTERS_DATA_ERROR_FMT = "Refusing to call {method}() because `.alters_data = True`"
@@ -27,7 +26,7 @@ class Accessor(str):
     def __init__(
         self, 
         value, 
-        sep='__',
+        sep=DEFAULT_SEPARATOR,
         callable_kwargs=None, 
         ignore_callable=False,
         ignore_callable_until_end=False,
@@ -93,11 +92,15 @@ class Accessor(str):
             self.ignore_callable_until_end = ignore_callable_until_end
         super().__init__()
 
+    def __new__(cls, value, **kwargs):
+        instance = super().__new__(cls, value)
+        return instance
+
     @property
     def keys(self):
         if self == "":
             return ()
-        return self.split(self.sep)
+        return tuple(self.split(self.sep))
 
     def _get_next_object(self, obj, next_key, call_callable=False, callable_kwargs=None, quiet=False):
         """
@@ -134,7 +137,7 @@ class Accessor(str):
             return obj
         callable_kwargs = callable_kwargs or {}
         if bool(self.DUNDER_PATTERN.match(next_key)):
-            next_key = next_key.replace('--', '__')
+            next_key = next_key.replace('--', self.sep)
         # First Try Dictionary lookup
         try: 
             next_obj = obj[next_key]
