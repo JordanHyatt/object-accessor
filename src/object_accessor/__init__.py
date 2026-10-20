@@ -10,7 +10,7 @@ class Accessor(str):
     To support list-of-dicts from ``QuerySet.values()``, if the context is a dictionary,
     and the accessor is a key in the dictionary, it is returned right away.
     
-    Keys that match the pattern ``--\\w+--`` (dunder patterns) are automatically converted
+    Keys that match the pattern ``--`` (double dash pattern) are automatically converted
     to ``__`` format before lookup. This allows for "Dunder" attributes that conflict with 
     the dunder seperater can be represented as double dash "--"
     """
@@ -179,9 +179,10 @@ class Accessor(str):
         applying the appropriate lookup methods for each key in the path. The traversal
         continues until all keys are processed or an error occurs.
         
-        Keys that match the pattern ``--\w+--`` (dunder patterns) are automatically converted
+        Keys that match the pattern ``--`` (double dash patterns) are automatically converted
         to ``__`` format before lookup. This allows for compatibility with Django's 
-        QuerySet.values() which returns keys with double underscore prefixes and suffixes.
+        QuerySet.values() which returns keys with double underscore prefixes and suffixes,
+        as well as "dunder attributes" such as __class__
         
         Example usage:
             >>> from object_accessor import Accessor
