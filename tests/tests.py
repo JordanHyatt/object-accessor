@@ -170,5 +170,16 @@ class TestAccessor(unittest.TestCase):
         result = accessor.resolve(data)
         self.assertEqual(result, "John")
 
+        # Test django specific call_callable override
+        def func():
+            return 'CALLED'
+        data = {'key':func}
+        r = Accessor('key').resolve(data)
+        self.assertEqual(r, 'CALLED')
+        func.do_not_call_in_templates = True
+        data = {'key':func}
+        r = Accessor('key').resolve(data)
+        self.assertEqual(r, func)
+
 if __name__ == '__main__':
     unittest.main()

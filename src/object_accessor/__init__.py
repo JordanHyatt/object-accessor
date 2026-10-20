@@ -167,6 +167,10 @@ class Accessor(str):
             )
         if next_obj == None:
             return next_obj
+        if call_callable:
+            # NOTE this is a django specific check that prevents reverse fk managers from being called which is almsost never desired 
+            if getattr(next_obj, "do_not_call_in_templates", False):
+                call_callable = False
         if call_callable and callable(next_obj):
             return next_obj(**callable_kwargs)
         return next_obj
