@@ -1,6 +1,6 @@
 [project]
 name = "object-accessor"
-version = "0.0.5"
+version = "0.0.6"
 description = "A Python library for navigating nested data structures using simple accessor paths. Provides clean, intuitive way to access nested attributes, dictionary keys, and list indices through a unified interface."
 readme = "README.md"
 authors = [
