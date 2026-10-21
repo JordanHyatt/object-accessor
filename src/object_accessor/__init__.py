@@ -1,4 +1,4 @@
-import re
+import re, warnings
 
 class Accessor(str):
     """
